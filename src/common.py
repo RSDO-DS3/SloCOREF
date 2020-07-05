@@ -95,25 +95,24 @@ class ControllerBase:
                 dev_loss += doc_loss
                 dev_examples += n_examples
 
-            logging.info(f"Training loss: {train_loss / max(1, train_examples): .4f}")
-            logging.info(f"Dev loss: {dev_loss / max(1, dev_examples): .4f}")
+            print(f"Training loss: {train_loss / max(1, train_examples): .4f}")
+            print(f"Dev loss: {dev_loss / max(1, dev_examples): .4f}")
 
             if (dev_loss / dev_examples) < best_dev_loss:
-                logging.info("Saving new best checkpoint")
+                print("Saving new best checkpoint")
                 self.save_checkpoint()
                 # Save this score as best
                 best_dev_loss = dev_loss / dev_examples
                 best_epoch = idx_epoch
 
-            logging.info(f"\tEpoch #{1 + idx_epoch} took {time.time() - t_epoch_start:.2f}s")
-            logging.info("")
+            print(f"\tEpoch #{1 + idx_epoch} took {time.time() - t_epoch_start:.2f}s")
+            print("")
 
             if idx_epoch - best_epoch == self.early_stopping_rounds:
-                logging.info(f"Validation metric did not improve for {self.early_stopping_rounds} rounds, "
-                             f"stopping early")
+                print(f"Validation metric did not improve for {self.early_stopping_rounds} rounds, stopping early")
                 break
 
-        logging.info(f"Training complete: took {time.time() - t_start:.2f}s")
+        print(f"Training complete: took {time.time() - t_start:.2f}s")
 
         # Add model train scores to model metadata
         with open(self.path_metadata, "a", encoding="utf-8") as f:
@@ -126,7 +125,7 @@ class ControllerBase:
 
     def evaluate(self, test_docs):
         # doc_name: <cluster assignments> pairs for all test documents
-        logging.info("Evaluating...")
+        print("Evaluating...")
         all_test_preds = {}
 
         # [MUC score]
@@ -143,7 +142,7 @@ class ControllerBase:
         b3_score = metrics.Score()
         ceaf_score = metrics.Score()
 
-        logging.info("Evaluation with MUC, BCube and CEAF score...")
+        print("Evaluation with MUC, BCube and CEAF score...")
         for curr_doc in test_docs:
 
             test_preds, _ = self._train_doc(curr_doc, eval_mode=True)
@@ -172,13 +171,13 @@ class ControllerBase:
             b3_score.add(metrics.b_cubed(gt_clusters, pr_clusters))
             ceaf_score.add(metrics.ceaf_e(gt_clusters, pr_clusters))
 
-        logging.info(f"----------------------------------------------")
-        logging.info(f"**Test scores**")
-        logging.info(f"**MUC:      {muc_score}**")
-        logging.info(f"**BCubed:   {b3_score}**")
-        logging.info(f"**CEAFe:    {ceaf_score}**")
-        logging.info(f"**CoNLL-12: {metrics.conll_12(muc_score, b3_score, ceaf_score)}**")
-        logging.info(f"----------------------------------------------")
+        print(f"----------------------------------------------")
+        print(f"**Test scores**")
+        print(f"**MUC:      {muc_score}**")
+        print(f"**BCubed:   {b3_score}**")
+        print(f"**CEAFe:    {ceaf_score}**")
+        print(f"**CoNLL-12: {metrics.conll_12(muc_score, b3_score, ceaf_score)}**")
+        print(f"----------------------------------------------")
 
         # Save test predictions and scores to file for further debugging
         with open(self.path_pred_scores, "w", encoding="utf-8") as f:
