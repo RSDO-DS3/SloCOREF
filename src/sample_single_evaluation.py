@@ -3,8 +3,10 @@ import json
 from src.contextual_model_bert import ContextualControllerBERT
 from src.data import Mention, Token, Document
 
+# A model I've trained, I think it was on coref149. No idea how smart it is.
 bert_model = ContextualControllerBERT.from_pretrained("contextual_model_bert\\fold0_0")
 
+# json output of sample text, produced by https://github.com/clarinsi/classla
 sample_text_json = json.loads("""[
   [
     [
@@ -138,6 +140,7 @@ for sentence in sample_text_json:
     sample_sentences.append([])
     for token in sentence[0]:
         token_id = str(sentence_idx + 1) + "-" + str(token_idx + 1)
+        # TODO Not sure token["xpos"] is the correct contents for the MSD field.
         sample_tokens[token_id] = Token(token_id, token["text"], token["lemma"], token["xpos"], sentence_idx, token_idx, document_idx)
         sample_sentences[sentence_idx].append(token_id)
 
@@ -145,6 +148,7 @@ for sentence in sample_text_json:
         document_idx += 1
     sentence_idx += 1
 
+# Automate extraction of mentions from tokens in some way.
 sample_mentions = {
     "M1": Mention("M1", [sample_tokens["1-1"]]),
     "M2": Mention("M2", [sample_tokens["1-4"], sample_tokens["1-5"]]),
