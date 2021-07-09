@@ -134,6 +134,15 @@ class ControllerBase:
 
         return best_dev_loss
 
+    def evaluate_single(self, document):
+        # doc_name: <cluster assignments> pairs for all test documents
+        logging.info("Evaluating a single document...")
+
+        predictions, _ = self._train_doc(document, eval_mode=True)
+        clusters = get_clusters(predictions)
+
+        return { "predictions": predictions, "clusters": clusters }
+
     @torch.no_grad()
     def evaluate(self, test_docs):
         # doc_name: <cluster assignments> pairs for all test documents
