@@ -1,5 +1,5 @@
 import os
-from typing import Optional, List, Any
+from typing import Optional, List
 
 from fastapi import Body, FastAPI, HTTPException
 from pydantic import BaseModel
@@ -13,7 +13,8 @@ from data import Mention, Token, Document
 
 COREF_MODEL_PATH = os.getenv("COREF_MODEL_PATH", None)
 if COREF_MODEL_PATH is None:
-    raise Exception("Coref model path not specified")
+    raise Exception(
+        "Coref model path not specified. Set environment variable COREF_MODEL_PATH as path to the model to load.")
 
 coref_model = ContextualControllerBERT.from_pretrained(COREF_MODEL_PATH)
 
@@ -90,7 +91,8 @@ def __body2doc(body: _PredictRequestBody):
                                      document_idx)
 
             if _token.mention is not None:
-                mention_id = "M-" + str(_token.mention)
+                # mentions should retain mention ids provided in the request
+                mention_id = _token.mention
 
                 if mention_id not in mentions:
                     mentions[mention_id] = Mention(mention_id, [])
@@ -103,7 +105,7 @@ def __body2doc(body: _PredictRequestBody):
             document_idx += 1
         sentence_idx += 1
 
-    doc = Document("D-1", tokens, sentences, mentions, clusters)
+    doc = Document(1, tokens, sentences, mentions, clusters)
     __sanity_check(doc)
     return doc
 
@@ -123,9 +125,13 @@ def __sanity_check(doc: Document):
                 token_idx = token.position_in_sentence
             else:
                 if sentence_idx != token.sentence_index:
-                    raise HTTPException(status_code=500, detail="Mention tokens are not in the same sentence.")
+                    raise HTTPException(status_code=400,
+                                        detail="Mention tokens are not in the same sentence (error at mention " + str(
+                                            mention.mention_id) + ").")
 
                 if token_idx != token.position_in_sentence - 1:
-                    raise HTTPException(status_code=500, detail="Mention tokens are not consecutive.")
+                    raise HTTPException(status_code=400,
+                                        detail="Mention tokens are not consecutive (error at mention " + str(
+                                            mention.mention_id) + ").")
 
                 token_idx = token.position_in_sentence
