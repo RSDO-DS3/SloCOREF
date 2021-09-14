@@ -138,10 +138,11 @@ class ControllerBase:
         # doc_name: <cluster assignments> pairs for all test documents
         logging.info("Evaluating a single document...")
 
-        predictions, _ = self._train_doc(document, eval_mode=True)
+        predictions, _, probabilities = self._train_doc(document, eval_mode=True)
         clusters = get_clusters(predictions)
+        scores = {m: probabilities[m] for m in clusters.keys()}
 
-        return { "predictions": predictions, "clusters": clusters }
+        return { "predictions": predictions, "clusters": clusters, "scores": scores }
 
     @torch.no_grad()
     def evaluate(self, test_docs):
