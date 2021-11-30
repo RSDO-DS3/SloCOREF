@@ -16,6 +16,9 @@ def classla_output_to_coref_input(classla_output):
     output_mentions = {}
     output_clusters = []
 
+    str_document = classla_output.text
+    start_char = 0
+
     current_mention_id = 1
     token_index_in_document = 0
     for sentence_index, input_sentence in enumerate(classla_output.sentences):
@@ -30,6 +33,13 @@ def classla_output_to_coref_input(classla_output):
                                  sentence_index,
                                  token_index_in_sentence,
                                  token_index_in_document)
+
+            # FIXME: This is a possibly inefficient way of finding start_char of a word. Stanza has this functionality
+            #  implemented, Classla unfortunately does not, so we resort to a hack
+            new_start_char = str_document.find(input_word.text, start_char)
+            output_token.start_char = new_start_char
+            if new_start_char != -1:
+                start_char = new_start_char
 
             if len(mention_tokens) > 0 and mention_tokens[0].msd[0] != output_token.msd[0]:
                 output_mentions[current_mention_id] = Mention(current_mention_id, mention_tokens)
@@ -127,7 +137,7 @@ async def predict(
         mentions.append(
             {
                 "id": mention.mention_id,
-                "start_idx": -1,  # TODO find this somehow
+                "start_idx": mention.tokens[0].start_char,
                 "length": len(mention_raw_text),
                 "ner_type": classla_output.sentences[sentence_id].tokens[token_id].ner,
                 "msd": mention.tokens[0].msd,
