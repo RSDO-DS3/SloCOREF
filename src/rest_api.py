@@ -4,8 +4,8 @@ import classla
 from fastapi import Body, FastAPI
 from pydantic import BaseModel
 
-from src.contextual_model_bert import ContextualControllerBERT
-from src.data import Document, Token, Mention
+from contextual_model_bert import ContextualControllerBERT
+from data import Document, Token, Mention
 
 
 def classla_output_to_coref_input(classla_output):
