@@ -8,7 +8,10 @@ COPY ./requirements-api.txt /app/
 
 # For some reason, two versions of torch get installed when installing requirements?
 # Installing specific torch version before installing the rest solves this problem.
-RUN pip install torch==1.10.0
+RUN pip install torch==1.10.0+cpu \
+    torchvision==0.11.1+cpu \
+    torchaudio==0.10.0+cpu \
+    -f https://download.pytorch.org/whl/cpu/torch_stable.html
 
 RUN pip install -r requirements.txt
 
