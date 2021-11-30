@@ -6,7 +6,7 @@ Rest API is run via FastAPI/uvicorn.
 
 If you have not yet, install `requirements-api.txt` by running 
 ```sh
-pip install -r requirements-api.txt
+$ pip install -r requirements-api.txt
 ```
 
 ## Setup & running
@@ -19,8 +19,22 @@ Running REST API requires two environment variables:
 REST API can then be ran by moving into the `src` directory and running the `uvicorn` module:
 
 ```sh
-cd ./src
-python -m uvicorn rest_api:app --port=5020
+$ cd ./src
+$ python -m uvicorn rest_api:app --port=5020
+```
+
+Assuming everything went smoothly, the API will become available at http://localhost:5020/predict/coref.
+```
+...
+INFO:     Uvicorn running on http://127.0.0.1:5020 (Press CTRL+C to quit)
+```
+
+To test it, try sending a request with **curl**:
+```sh
+$ curl -X POST -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"threshold": 0.60, "return_singletons": true, "text": "Janez Novak je šel v Mercator. Tam je kupil mleko. Nato ga je spreletela misel, da bi moral iti v Hofer."}' \
+  "http://localhost:5020/predict/coref"
 ```
 
 You can, of course, define required env variables on the fly, for example:
@@ -28,6 +42,9 @@ You can, of course, define required env variables on the fly, for example:
 ```sh
 CLASSLA_RESOURCES_DIR=.\classla_resources COREF_MODEL_PATH=.\contextual_model_bert\fold0_0 python -m uvicorn rest_api:app --port=5020
 ```
+
+### Documentation
+After starting up the API, the documentation will also become accessible at http://localhost:5020/docs.
 
 ## Docker
 
