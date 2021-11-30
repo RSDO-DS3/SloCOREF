@@ -4,9 +4,12 @@ Rest API is run via FastAPI/uvicorn.
 
 ## Installation
 
-If you have not yet, install `requirements-api.txt`.
+If you have not yet, install `requirements-api.txt` by running 
+```sh
+pip install -r requirements-api.txt
+```
 
-## Setup
+## Setup & running
 
 Running REST API requires two environment variables:
 - `COREF_MODEL_PATH`, containing the path to the coref model
