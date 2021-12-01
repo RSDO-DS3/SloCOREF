@@ -79,8 +79,8 @@ def init_coref():
     return ContextualControllerBERT.from_pretrained(COREF_MODEL_PATH)
 
 
-classla = init_classla()
-coref = init_coref()
+classla_model = init_classla()
+coref_model = init_coref()
 
 app = FastAPI(
     title="SloCoref REST API",
@@ -107,13 +107,13 @@ async def predict(
         )
 ):
     # 1. process input text with CLASSLA
-    classla_output = classla(req_body.text)
+    classla_output = classla_model(req_body.text)
 
     # 2. re-format classla_output into coref_input (incl. mention detection)
     coref_input = classla_output_to_coref_input(classla_output)
 
     # 3. process prepared input with coref
-    coref_output = coref.evaluate_single(coref_input)
+    coref_output = coref_model.evaluate_single(coref_input)
 
     # 4. prepare response (mentions + coreferences)
     coreferences = []
@@ -140,10 +140,12 @@ async def predict(
         [sentence_id, token_id] = [int(idx) for idx in mention.tokens[0].token_id.split("-")]
         mention_score = coref_output["scores"][mention.mention_id]
 
-        if req_body.threshold is not None and mention_score < req_body.threshold:
+        if req_body.return_singletons is False and mention.mention_id not in coreferenced_mentions:
             continue
 
-        if req_body.return_singletons is False and mention.mention_id not in coreferenced_mentions:
+        if req_body.threshold is not None and mention_score < req_body.threshold:
+            # while this is technically already filtered with coreferenced_mentions, singleton mentions aren't, but they
+            # have some score too that can be thresholded.
             continue
 
         mention_raw_text = " ".join([t.raw_text for t in mention.tokens])
