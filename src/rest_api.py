@@ -116,11 +116,24 @@ async def predict(
     coref_output = coref.evaluate_single(coref_input)
 
     # 4. prepare response (mentions + coreferences)
-    singleton_mentions = []
-    for mention_id, cluster_id in coref_output['clusters'].items():
-        same_cluster_count = len([x for x in coref_output['clusters'].items() if x[1] == cluster_id])
-        if same_cluster_count == 1:
-            singleton_mentions.append(mention_id)
+    coreferences = []
+    coreferenced_mentions = set()
+    for id2, id1s in coref_output["predictions"].items():
+        if id2 is not None:
+            for id1 in id1s:
+                mention_score = coref_output["scores"][id1]
+
+                if req_body.threshold is not None and mention_score < req_body.threshold:
+                    continue
+
+                coreferenced_mentions.add(id1)
+                coreferenced_mentions.add(id2)
+
+                coreferences.append({
+                    "id1": int(id1),
+                    "id2": int(id2),
+                    "score": mention_score
+                })
 
     mentions = []
     for mention in coref_input.mentions.values():
@@ -130,7 +143,7 @@ async def predict(
         if req_body.threshold is not None and mention_score < req_body.threshold:
             continue
 
-        if req_body.return_singletons is False and mention.mention_id in singleton_mentions:
+        if req_body.return_singletons is False and mention.mention_id not in coreferenced_mentions:
             continue
 
         mention_raw_text = " ".join([t.raw_text for t in mention.tokens])
@@ -145,26 +158,7 @@ async def predict(
             }
         )
 
-    coreferences = []
-    for mention_id, cluster_id in coref_output["clusters"].items():
-        mention_score = coref_output["scores"][mention_id]
-
-        if req_body.threshold is not None and mention_score < req_body.threshold:
-            continue
-
-        if req_body.return_singletons is False and mention_id in singleton_mentions:
-            continue
-
-        coreferences.append(
-            {
-                "mid": mention_id,
-                # TODO API suggestion is to have (mention1, mention2) pairs instead of (mention, cluster)
-                "cid": cluster_id,
-                "score": coref_output["scores"][mention_id]
-            }
-        )
-
     return {
         "mentions": mentions,
-        "coreferences": sorted(coreferences, key=lambda x: x["mid"])
+        "coreferences": sorted(coreferences, key=lambda x: x["id1"])
     }
