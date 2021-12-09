@@ -226,6 +226,8 @@ docker run --rm -it --name slo-coref \
   slo-coref
 ```
 
+**Note:** If container is killed at startup, increase Docker memory limits (8GB is proposed).
+
 ---
 
 > Operacijo Razvoj slovenščine v digitalnem okolju sofinancirata Republika Slovenija in Evropska unija iz Evropskega sklada za regionalni razvoj. Operacija se izvaja v okviru Operativnega programa za izvajanje evropske kohezijske politike v obdobju 2014-2020.
