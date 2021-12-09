@@ -146,10 +146,10 @@ async def predict(
         if req_body.return_singletons is False and mention.mention_id not in coreferenced_mentions:
             continue
 
-        if req_body.threshold is not None and mention_score < req_body.threshold:
-            # while this is technically already filtered with coreferenced_mentions, singleton mentions aren't, but they
-            # have some score too that can be thresholded.
-            continue
+        # while this is technically already filtered with coreferenced_mentions, singleton mentions aren't, but they
+        # have some score too that can be thresholded.
+        #if req_body.threshold is not None and mention_score < req_body.threshold:            
+        #    continue
 
         mention_raw_text = " ".join([t.raw_text for t in mention.tokens])
         mentions.append(
@@ -157,7 +157,7 @@ async def predict(
                 "id": mention.mention_id,
                 "start_idx": mention.tokens[0].start_char,
                 "length": len(mention_raw_text),
-                "ner_type": classla_output.sentences[sentence_id].tokens[token_id].ner,
+                "ner_type": classla_output.sentences[sentence_id].tokens[token_id].ner.replace("B-", "").replace("I-", ""),
                 "msd": mention.tokens[0].msd,
                 "text": mention_raw_text
             }

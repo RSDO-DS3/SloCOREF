@@ -1,4 +1,8 @@
-# Slovene coreference resolution
+# SloCOREF - Coreference Resolution for Slovene language
+
+V tem repozitoriju se nahaja rezultat aktivnosti A3.2 - R3.2.3 Orodje za odkrivanje koreferenčnosti, ki je nastalo v okviru projekta [Razvoj slovenščine v digitalnem okolju](https://slovenscina.eu).
+
+---
 
 Slovene coreference resolution project introduces four models for coreference resolution on coref149 and senticoref datasets:
 
@@ -7,11 +11,9 @@ Slovene coreference resolution project introduces four models for coreference re
 - contextual neural model using ELMo embeddings,
 - contextual neural model using BERT embeddings.
 
-For more details, [see the report paper](https://github.com/matejklemen/slovene-coreference-resolution/blob/master/report/Coreference_resolution_approaches_for_Slovene_language.pdf).
+For more details, [see the journal paper](https://doi.org/10.2298/CSIS201120060K), published in Computer Science and Information Systems (2021).
 
-## Run it in Google Colaboratory
-
-Easiest way to run this project is opening and running the [prepared notebook in Google Colab](https://colab.research.google.com/github/matejklemen/slovene-coreference-resolution/blob/master/report/Slovene_coreference_resolution.ipynb). Notebook also contains a [download link for pre-trained models](https://drive.google.com/open?id=15xKYqSy5WgedFIPGP-HZz7YVmZa6oKg_) and examples how to run them for evaluation.
+BERT-based pre-trained model on [SentiCoref 1.0 dataset](https://www.clarin.si/repository/xmlui/handle/11356/1285) is available in [the project data repository](https://nas.cjvt.si/index.php/f/21605774).
 
 ## Project structure
 
@@ -75,8 +77,7 @@ If you want to use pretrained embeddings in non-contextual coreference model, ma
 
 Put them into `data/` (either the `cc.sl.300.bin` file for fastText or the `model.txt` file for word2vec).
 
-For the contextual coreference model, make sure to download the pretrained Slovene ELMo embeddings from 
-https://www.clarin.si/repository/xmlui/handle/11356/1277. 
+For the contextual coreference model, make sure to download [the pretrained Slovene ELMo embeddings](https://www.clarin.si/repository/xmlui/handle/11356/1277). 
 Extract the options file and the weight file into `data/slovenian-elmo`.
 
 
@@ -93,7 +94,7 @@ Parameters and it's default values can be previewed at the top of each model's f
 
 ### Baseline model
 
-[Baseline model (linear regression with hand-crafted features)](https://github.com/matejklemen/slovene-coreference-resolution/blob/master/src/baseline.py)
+Baseline model (linear regression with hand-crafted features)
 
 ```bash
 $ python baseline.py \
@@ -106,7 +107,7 @@ $ python baseline.py \
 
 ### Non-contextual model
 
-[Non-contextual_model with word2vec embeddings](https://github.com/matejklemen/slovene-coreference-resolution/blob/master/src/noncontextual_model.py)
+Non-contextual_model with word2vec embeddings
 
 ```bash
 $ python noncontextual_model.py \
@@ -123,7 +124,7 @@ $ python noncontextual_model.py \
 
 ### Contextual model (ELMo)
 
-[Contextual model with ELMo embeddings](https://github.com/matejklemen/slovene-coreference-resolution/blob/master/src/contextual_model_elmo.py)
+Contextual model with ELMo embeddings
 
 ```bash
 $ python contextual_model_elmo.py \
@@ -139,7 +140,7 @@ $ python contextual_model_elmo.py \
 
 ### Contextual model (BERT)
 
-[Contextual model with BERT embeddings](https://github.com/matejklemen/slovene-coreference-resolution/blob/master/src/contextual_model_bert.py)
+Contextual model with BERT embeddings
 
 ```bash
 $ python contextual_model_bert.py \
@@ -153,5 +154,80 @@ $ python contextual_model_bert.py \
     --fixed_split
 ```
 
-## License
+# Docker setup
 
+Rest API is is provided by FastAPI/uvicorn.
+
+## Installation
+
+Install base and API requirements by running 
+```bash
+$ pip install -r requirements.txt
+$ pip install -r requirements-api.txt
+```
+
+## Setup & running
+
+Running REST API requires two environment variables:
+- `COREF_MODEL_PATH`, containing the path to the coref model
+- `CLASSLA_RESOURCES_DIR`, a path to where the CLASSLA resources will be downloaded (if are not already) and used
+
+
+REST API can then be ran by moving into the `src` directory and running the `uvicorn` module:
+
+```sh
+$ cd ./src
+$ python -m uvicorn rest_api:app --port=5020
+```
+
+You can, of course, define required env variables on the fly when running, for example:
+
+```sh
+$ CLASSLA_RESOURCES_DIR=.\classla_resources \
+  COREF_MODEL_PATH=.\contextual_model_bert \
+  python -m uvicorn rest_api:app --port=5020
+```
+
+Assuming everything went smoothly, the API will become available at http://localhost:5020/predict/coref.
+```
+...
+INFO:     Uvicorn running on http://127.0.0.1:5020 (Press CTRL+C to quit)
+```
+
+To test it, try sending a request with **curl**:
+```sh
+$ curl -X POST -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"threshold": 0.60, "return_singletons": true, "text": "Janez Novak je šel v Mercator. Tam je kupil mleko. Nato ga je spreletela misel, da bi moral iti v Hofer."}' \
+  "http://localhost:5020/predict/coref"
+```
+
+### Documentation
+
+After starting up the API, the OpenAPI/Swagger documentation will also become accessible at http://localhost:5020/docs.
+
+## Building a Docker image
+
+To build the docker image, run 
+
+```sh
+docker build --tag slo-coref -f Dockerfile .
+```
+
+### Running a Docker container
+
+To run the docker image, run the following command with properly fixed mount `source` paths:
+
+```sh
+docker run --rm -it --name slo-coref \
+  -p 5020:5020 \
+  --env COREF_MODEL_PATH="/app/data/bert_based/" \
+  --mount type=bind,source="/path/to/contextual_model_bert/",destination="/app/data/bert_based/",ro \
+  slo-coref
+```
+
+---
+
+> Operacijo Razvoj slovenščine v digitalnem okolju sofinancirata Republika Slovenija in Evropska unija iz Evropskega sklada za regionalni razvoj. Operacija se izvaja v okviru Operativnega programa za izvajanje evropske kohezijske politike v obdobju 2014-2020.
+
+![](Logo_EKP_sklad_za_regionalni_razvoj_SLO_slogan.jpg)
