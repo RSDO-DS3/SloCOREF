@@ -66,7 +66,10 @@ def init_classla():
             "CLASSLA resources path not specified. Set environment variable CLASSLA_RESOURCES_DIR as path to the dir where CLASSLA resources should be stored.")
 
     processors = 'tokenize,pos,lemma,ner'
+
+    # Docker image already contains these resources
     classla.download('sl', processors=processors)
+
     return classla.Pipeline('sl', processors=processors)
 
 

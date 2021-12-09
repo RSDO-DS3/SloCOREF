@@ -2,6 +2,8 @@ FROM python:3.9
 
 WORKDIR /app
 
+ENV CLASSLA_RESOURCES_DIR '/app/data/classla'
+
 COPY ./src /app
 COPY ./requirements.txt /app/
 COPY ./requirements-api.txt /app/
@@ -17,6 +19,11 @@ RUN pip install -r requirements.txt
 
 # Install additional requirements to run REST API
 RUN pip install -r requirements-api.txt
+
+RUN python -c "import classla; import os; \
+               CLASSLA_RESOURCES_DIR = os.getenv('CLASSLA_RESOURCES_DIR', None); \
+               processors = 'tokenize,pos,lemma,ner'; \
+               classla.download('sl', processors=processors);"
 
 EXPOSE 5020
 

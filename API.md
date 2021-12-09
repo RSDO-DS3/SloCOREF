@@ -67,9 +67,7 @@ To run the docker image, run the following command with properly fixed mount `so
 ```sh
 docker run --rm -it --name slo-coref \
   -p 5020:5020 \
-  --env CLASSLA_RESOURCES_DIR="/app/data/classla" \
   --env COREF_MODEL_PATH="/app/data/bert_based/" \
   --mount type=bind,source="/path/to/contextual_model_bert/",destination="/app/data/bert_based/",ro \
-  --mount type=bind,source="/path/to/classla_resources",destination="/app/data/classla/" \
   slo-coref
 ```
