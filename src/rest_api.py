@@ -18,6 +18,7 @@ def classla_output_to_coref_input(classla_output):
 
     str_document = classla_output.text
     start_char = 0
+    MENTION_MSD = {"N", "V", "R", "P"}  # noun, verb, adverb, pronoun
 
     current_mention_id = 1
     token_index_in_document = 0
@@ -47,13 +48,21 @@ def classla_output_to_coref_input(classla_output):
                 mention_tokens = []
                 current_mention_id += 1
 
-            # TODO mention "detection"
-            if output_token.msd[0] == "N" or output_token.msd[0] == "V" or output_token.msd[0] == "A":
+            # Simplistic mention detection: consider nouns, verbs, adverbs and pronouns as mentions
+            if output_token.msd[0] in MENTION_MSD:
                 mention_tokens.append(output_token)
 
             output_tokens[output_token.token_id] = output_token
             output_sentence.append(output_token.token_id)
             token_index_in_document += 1
+
+        # Handle possible leftover mention tokens at end of sentence
+        if len(mention_tokens) > 0:
+            output_mentions[current_mention_id] = Mention(current_mention_id, mention_tokens)
+            output_clusters.append([current_mention_id])
+            mention_tokens = []
+            current_mention_id += 1
+
         output_sentences.append(output_sentence)
 
     return Document(1, output_tokens, output_sentences, output_mentions, output_clusters)
@@ -79,7 +88,9 @@ def init_coref():
         raise Exception(
             "Coref model path not specified. Set environment variable COREF_MODEL_PATH as path to the model to load.")
 
-    return ContextualControllerBERT.from_pretrained(COREF_MODEL_PATH)
+    instance = ContextualControllerBERT.from_pretrained(COREF_MODEL_PATH)
+    instance.eval_mode()
+    return instance
 
 
 classla_model = init_classla()
