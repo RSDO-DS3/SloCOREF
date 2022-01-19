@@ -233,3 +233,11 @@ docker run --rm -it --name slo-coref \
 > Operacijo Razvoj slovenščine v digitalnem okolju sofinancirata Republika Slovenija in Evropska unija iz Evropskega sklada za regionalni razvoj. Operacija se izvaja v okviru Operativnega programa za izvajanje evropske kohezijske politike v obdobju 2014-2020.
 
 ![](Logo_EKP_sklad_za_regionalni_razvoj_SLO_slogan.jpg)
+
+----
+
+SloCOREF tool (modeling and training) was partly financed by [CLARIN.SI](https://www.clarin.si).
+
+<center>
+	<img src="clarin-logo.png" width="600pt" />
+<center>
