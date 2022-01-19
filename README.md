@@ -239,5 +239,5 @@ docker run --rm -it --name slo-coref \
 SloCOREF tool (modeling and training) was partly financed by [CLARIN.SI](https://www.clarin.si).
 
 <center>
-	<img src="clarin-logo.png" width="600pt" />
+	<img src="clarin-logo.png" width="500pt" />
 <center>
