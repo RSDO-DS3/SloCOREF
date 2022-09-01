@@ -216,13 +216,15 @@ docker build --tag slo-coref -f Dockerfile .
 
 ### Running a Docker container
 
+Trained BERT model is available on [NAS CJVT](https://nas.cjvt.si/index.php/f/21605824) (credentials needed).
+
 To run the docker image, run the following command with properly fixed mount `source` paths:
 
 ```sh
 docker run --rm -it --name slo-coref \
   -p 5020:5020 \
   --env COREF_MODEL_PATH="/app/data/bert_based/" \
-  --mount type=bind,source="/path/to/contextual_model_bert/",destination="/app/data/bert_based/",ro \
+  --mount type=bind,source="`pwd`/model/cseb_senticoref/",destination="/app/data/bert_based/",ro \
   slo-coref
 ```
 
