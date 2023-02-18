@@ -22,3 +22,7 @@ venv-onj
 !/data/README.md
 !/data/senticoref_pos_stanza
 !/data/seeded_split
+
+
+.ipynb_checkpoints
+model/
