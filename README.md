@@ -13,14 +13,7 @@ Slovene coreference resolution project introduces four models for coreference re
 
 For more details, [see the journal paper](https://doi.org/10.2298/CSIS201120060K), published in Computer Science and Information Systems (2021).
 
-**[Update 18. 2. 2023]**  BERT-based model fine-tuned on the updated [SUK (SentiCoref) dataset](http://hdl.handle.net/11356/1747) is available on [the CLARIN.SI repository](http://hdl.handle.net/11356/1773). 
-Using the evaluation setting where entity mentions are assumed to be correctly pre-detected, the model achieves the following metric values:  
-```
-MUC: precision = 0.931, recall = 0.957, F1 = 0.943
-BCubed: precision = 0.887, recall = 0.947, F1 = 0.914
-CEAFe: precision = 0.945, recall = 0.893, F1 = 0.916
-CoNLL-12: precision = 0.921, recall = 0.932, F1 = 0.924
-```
+BERT-based pre-trained model on [SentiCoref 1.0 dataset](https://www.clarin.si/repository/xmlui/handle/11356/1285) is available in [the project data repository](https://nas.cjvt.si/index.php/f/21605774).
 
 ## Project structure
 
